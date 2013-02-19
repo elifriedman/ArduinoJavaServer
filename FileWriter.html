@@ -1,0 +1,130 @@
+<html>
+<head>
+<meta http-equiv="cache-control" content="no-cache">
+<link rel="stylesheet" type="text/css" href="FileWriter.css" />
+<script type="text/javascript">
+	var img;
+	var src = "images/";
+	var i = 0;
+
+
+
+
+function $(d) {
+    return document.getElementById(d);
+}
+var directions;
+var LEFT = 37;  var A = 65;
+var UP = 38;    var W = 87;
+var RIGHT = 39; var D = 68;
+var DOWN = 40; var S = 83;
+var l = false, u = false, r = false, d = false;
+
+function init() {
+    document.addEventListener("keydown",addDirec);
+    document.addEventListener("keyup",subtractDirec);
+    img = $("img");
+    if(typeof(EventSource)!=="undefined") {
+        var source=new EventSource("updateStream");
+        source.onmessage=function(event) {
+            $("img").src = src + 
+            event.data;
+        };
+
+    } else {
+        $("img").innerHTML="Sorry, your browser does not support server-sent events...";
+    }
+}
+
+function addDirec(event) {
+    var change = false;
+    switch(event.keyCode) {
+        case LEFT:
+        case A:
+            if(!r && !l) {
+                l = true;
+                change = true;
+            }
+            break;
+        case UP:
+        case W:
+            if(!d && !u) {
+                u = true;
+                change = true;
+            }
+            break;
+        case RIGHT:
+        case D:
+            if(!l && !r) {
+                r = true;
+                change = true;
+            }
+            break;
+        case DOWN:
+        case S:
+            if(!u && !d) {
+                d = true;
+                change = true;
+            }
+            break;
+    }
+    if(change) {
+        $("t").innerHTML = l +""+ u +""+ r +""+ d;
+        sendData(l,u,r,d);
+    }
+}
+function subtractDirec(event) {
+    var change = false
+    switch(event.keyCode) {
+        case LEFT:
+        case A:
+            l = false;
+            change = true;
+            break;
+        case UP:
+        case W:
+            u = false;
+            change = true;
+            break;
+        case RIGHT:
+        case D:
+            r = false;
+            change = true;
+            break;
+        case DOWN:
+        case S:
+            d = false;
+            change = true;
+            break;
+    }
+    
+    if(change) {
+        $("t").innerHTML = l +""+ u +""+ r +""+ d;
+        sendData(l,u,r,d);
+    }
+}
+
+function sendData(l,u,r,d) {
+    if (window.XMLHttpRequest)
+      {// code for IE7+, Firefox, Chrome, Opera, Safari
+      xmlhttp=new XMLHttpRequest();
+      }
+    else
+      {// code for IE6, IE5
+      xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+      }
+    xmlhttp.open("POST","dataStream?L="+Number(l)+"U="+Number(u)+"R="+Number(r)+"D="+Number(d),true);
+    xmlhttp.send();
+}
+
+</script>
+</head>
+
+<body onload = "init()">
+<div id = "display">
+    <img id = "img" />
+</div>
+
+<div id="t">Click</div>
+</body>
+</html>
